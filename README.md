@@ -42,13 +42,6 @@ Example:
 Audio Source -> Auto Audio Player -> Any downstream AUDIO node
 ```
 
-## Notes
-
-- The node writes a temporary WAV file so the frontend can load and play it.
-- Some browsers block autoplay until the page has received user interaction. In that case, the node still loads the clip and the Play button works normally.
-- The custom UI hides the duplicate built-in control widgets and keeps playback controls in a single panel.
-- Frontend code uses ComfyUI's extension registration pattern with `WEB_DIRECTORY = "./js"` and a frontend script loaded from `js/auto_audio_player.js`.
-
 ## Files
 
 ```text
