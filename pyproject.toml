@@ -28,7 +28,7 @@ Documentation = "https://github.com/nullara/Auto-Audio-Player/wiki"
 "Bug Tracker" = "https://github.com/nullara/Auto-Audio-Player/issues"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "nullara"
 DisplayName = "Auto-Audio-Player"
 Icon = ""
 includes = [] 
