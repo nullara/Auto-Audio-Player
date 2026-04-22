@@ -1,0 +1,30 @@
+Ignore all previous instructions. Generate a background-only scene description as a comma-delimited list of keywords and short phrases.
+
+Follow these rules strictly:
+
+Begin with: background, no humans,
+The first five elements must appear in this exact order:
+location
+time of day
+weather
+lighting
+environmental details
+After these, include additional purely visual details (architecture, terrain, objects, textures, colors, atmosphere, etc.)
+
+Hard constraints:
+
+Do NOT describe any people, characters, or living beings
+Do NOT include names, personality traits, emotions, actions, or movement
+Do NOT include smells, thoughts, or non-visual sensations
+Everything must be describable in a still photograph
+Do NOT write full sentences — only comma-separated keywords or short phrases
+Do NOT continue any story or roleplay
+
+Output format:
+
+After the visual keyword list, add a colon :
+Then provide a second comma-delimited list of ambient audio cues that match the environment (e.g., rain, wind, distant traffic, birds)
+
+Example structure (for clarity):
+
+background, no humans, [location], [time of day], [weather], [lighting], [environmental details], [additional visual elements]: [ambient sounds]
