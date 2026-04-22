@@ -1,4 +1,3 @@
-import io
 import os
 import uuid
 import wave
@@ -13,6 +12,18 @@ from server import PromptServer
 WEB_DIRECTORY = "./js"
 
 TEMP_SUBDIR = "auto_audio_player"
+
+LATEST_AUDIO_STATE = {
+    "revision": 0,
+    "filename": None,
+    "url": None,
+    "sample_rate": None,
+    "channels": None,
+    "duration": None,
+    "autoplay": True,
+    "default_volume": 1.0,
+    "loop": False,
+}
 
 
 def _get_temp_root() -> Path:
@@ -36,28 +47,23 @@ def _to_numpy_audio(audio):
     else:
         data = np.asarray(waveform, dtype=np.float32)
 
-    # Common ComfyUI audio shapes include:
-    # [batch, channels, samples], [channels, samples], [samples]
     if data.ndim == 3:
         data = data[0]
     if data.ndim == 1:
         data = data[np.newaxis, :]
     elif data.ndim == 2:
-        # If someone hands in [samples, channels], rotate it.
         if data.shape[0] > data.shape[1] and data.shape[1] <= 8:
             data = data.T
     else:
         raise ValueError(f"Unsupported waveform shape: {data.shape}")
 
-    # Final shape: [channels, samples]
     data = np.clip(data, -1.0, 1.0)
     return data, sample_rate
 
 
 def _write_wav(audio_path: Path, waveform: np.ndarray, sample_rate: int):
-    # Convert float32 [-1, 1] to 16-bit PCM.
     pcm = (waveform * 32767.0).astype(np.int16)
-    pcm_interleaved = pcm.T  # [samples, channels]
+    pcm_interleaved = pcm.T
 
     with wave.open(str(audio_path), "wb") as wav_file:
         wav_file.setnchannels(pcm.shape[0])
@@ -76,6 +82,11 @@ async def serve_auto_audio_player_file(request):
         return web.Response(status=404, text="Audio file not found.")
 
     return web.FileResponse(path, headers={"Cache-Control": "no-store"})
+
+
+@PromptServer.instance.routes.get("/auto_audio_player/latest")
+async def get_latest_auto_audio_player_state(request):
+    return web.json_response(LATEST_AUDIO_STATE, headers={"Cache-Control": "no-store"})
 
 
 class AutoAudioPlayer:
@@ -97,6 +108,8 @@ class AutoAudioPlayer:
     OUTPUT_NODE = True
 
     def process(self, audio, autoplay=True, default_volume=1.0, loop=False):
+        global LATEST_AUDIO_STATE
+
         waveform, sample_rate = _to_numpy_audio(audio)
         filename = f"auto_audio_{uuid.uuid4().hex}.wav"
         out_path = _get_temp_root() / filename
@@ -113,6 +126,11 @@ class AutoAudioPlayer:
             "autoplay": bool(autoplay),
             "default_volume": float(default_volume),
             "loop": bool(loop),
+        }
+
+        LATEST_AUDIO_STATE = {
+            "revision": int(LATEST_AUDIO_STATE.get("revision", 0)) + 1,
+            **ui_payload,
         }
 
         return {"ui": {"audio": [ui_payload]}, "result": (audio,)}

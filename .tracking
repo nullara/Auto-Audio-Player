@@ -1,0 +1,7 @@
+.gitattributes
+.gitignore
+LICENSE
+README.md
+__init__.py
+js/auto_audio_player.js
+pyproject.toml
